@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <title>Login Admin - Buku Tamu Digital</title>
+    <?!= include('css'); ?>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #00d2ff 100%);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading -->
+    <div id="loading">
+        <div class="spinner-border" role="status"></div>
+        <div class="loading-text" id="loading-text">Memverifikasi...</div>
+    </div>
+
+    <div class="card login-card">
+        <h3 class="login-title"><i class="fas fa-user-shield me-2"></i>Login Admin</h3>
+        <p class="text-center text-muted mb-4 dyn-title">Buku Tamu Digital</p>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2">
+                <i class="fas fa-sign-in-alt me-2"></i> Masuk
+            </button>
+            <div class="text-center mt-3">
+                <a href="<?= ScriptApp.getService().getUrl() ?>" class="text-decoration-none text-muted"><i
+                        class="fas fa-arrow-left me-1"></i> Kembali ke Form Tamu</a>
+            </div>
+        </form>
+    </div>
+
+    <?!= include('js'); ?>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Simple Session Check
+            if (localStorage.getItem("admin_token")) {
+                window.top.location.href = "<?= ScriptApp.getService().getUrl() ?>?page=admin";
+            }
+        });
+
+        document.getElementById("loginForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            var u = document.getElementById("username").value;
+            var p = document.getElementById("password").value;
+
+            showLoading("Sedang masuk...");
+            try {
+                const res = await runGoogleScript("adminLogin", u, p);
+                hideLoading();
+                if (res.success) {
+                    localStorage.setItem("admin_token", res.token);
+                    window.top.location.href = "<?= ScriptApp.getService().getUrl() ?>?page=admin";
+                } else {
+                    showError(res.message);
+                }
+            } catch (err) {
+                hideLoading();
+                showError(err.message || "Gagal menghubungi server");
+            }
+        });
+    </script>
+</body>
+
+</html>

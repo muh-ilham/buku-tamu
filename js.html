@@ -1,0 +1,444 @@
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables & Plugins -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Utility Functions
+    function showLoading(msg = 'Memproses...') {
+        document.getElementById('loading').style.display = 'flex';
+        let textEl = document.getElementById('loading-text');
+        if (textEl) textEl.innerText = msg;
+    }
+
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function showError(msg) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Perhatian',
+            text: msg,
+            confirmButtonColor: '#059669',
+            customClass: { popup: 'rounded-4' }
+        });
+    }
+
+    function showSuccess(msg, callback) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: msg,
+            showConfirmButton: false,
+            timer: 2000,
+            customClass: { popup: 'rounded-4' }
+        }).then(() => {
+            if (callback) callback();
+        });
+    }
+
+    function runGoogleScript(funcName, ...args) {
+        return new Promise((resolve, reject) => {
+            if (typeof google === 'undefined' || typeof google.script === 'undefined') {
+                reject(new Error("Lingkungan terbatas (Local)."));
+                return;
+            }
+
+            var runner = google.script.run
+                .withSuccessHandler(resolve)
+                .withFailureHandler(reject);
+
+            if (args && args.length > 0) runner[funcName].apply(runner, args);
+            else runner[funcName]();
+        });
+    }
+
+    // Set Tanggal Hari Ini di Header Pill
+    function initDates() {
+        const today = new Date();
+        const options = { day: 'numeric', month: 'short', year: 'numeric' };
+        const dateStr = today.toLocaleDateString('id-ID', options);
+
+        document.querySelectorAll('.date-display').forEach(el => {
+            el.textContent = dateStr;
+        });
+    }
+
+    // SPA Navigation Helper
+    async function showPage(pageId, linkElement) {
+        // Sembunyikan semua page
+        document.querySelectorAll('.page-section').forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Reset active nav style
+        document.querySelectorAll('.nav-item-custom').forEach(nav => {
+            nav.classList.remove('active', 'text-teal', 'bg-light-teal', 'fw-semibold');
+            nav.classList.add('text-muted');
+        });
+
+        // Show requested page & SET active
+        let pageEl = document.getElementById('page-' + pageId);
+        if (pageEl) {
+            pageEl.style.display = 'block';
+        }
+        if (linkElement) {
+            linkElement.classList.remove('text-muted');
+            linkElement.classList.add('active', 'text-teal', 'bg-light-teal', 'fw-semibold');
+        }
+
+        // Load data based on page
+        if (pageId === 'kunjungan') {
+            await renderDataTable();
+        } else if (pageId === 'statistik') {
+            await renderStatistics();
+        }
+    }
+
+    // ============================
+    // CAMERA & FORM REGISTRASI
+    // ============================
+    let stream = null;
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas-hidden');
+    const photoPreview = document.getElementById('photo-preview');
+    const photoBase64Input = document.getElementById('photoBase64');
+    const cameraError = document.getElementById('camera-error');
+    const cameraControls = document.getElementById('camera-controls');
+    const retakeControls = document.getElementById('retake-controls');
+
+    async function startCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+        } catch (err) {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            } catch (fallbackErr) {
+                console.error("Camera fail", fallbackErr);
+                cameraError.style.display = 'flex';
+                video.style.display = 'none';
+                cameraControls.style.display = 'none';
+
+                let errorReason = "Izin kamera diblokir oleh browser atau sistem. Harap gunakan tombol Ambil Manual / Upload Foto di bawah ini.";
+                if (fallbackErr.name === "NotFoundError") errorReason = "Kamera tidak ditemukan di perangkat.";
+                document.querySelector('#camera-error p').innerText = errorReason;
+                return;
+            }
+        }
+
+        cameraError.style.display = 'none';
+        photoPreview.style.display = 'none';
+        retakeControls.style.display = 'none';
+
+        video.srcObject = stream;
+        video.style.display = 'block';
+        cameraControls.style.display = 'block';
+    }
+
+    function capturePhoto() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        photoBase64Input.value = dataUrl;
+        photoPreview.src = dataUrl;
+
+        if (stream) stream.getTracks().forEach(track => track.stop()); // Tahan stream hemat memori
+
+        video.style.display = 'none';
+        cameraControls.style.display = 'none';
+
+        photoPreview.style.display = 'block';
+        retakeControls.style.display = 'block';
+    }
+
+    function handleManualPhoto(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const MAX_WIDTH = 800;
+                let width = img.width;
+                let height = img.height;
+                if (width > MAX_WIDTH) {
+                    height = Math.round((height * MAX_WIDTH) / width);
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = Math.max(width, 1);
+                canvas.height = Math.max(height, 1);
+                const ctx = canvas.getContext('2d');
+
+                // Jangan disisipkan filter -1 scale seperti webcam, karena ini foto asli dari hp
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                photoBase64Input.value = dataUrl;
+                photoPreview.src = dataUrl;
+
+                if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
+
+                cameraError.style.display = 'none';
+                video.style.display = 'none';
+                cameraControls.style.display = 'none';
+
+                photoPreview.style.display = 'block';
+                retakeControls.style.display = 'block';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function submitGuestForm(e) {
+        e.preventDefault();
+        if (!photoBase64Input.value) {
+            showError("Harap ambil foto wajah sebelum menyelesaikan registrasi.");
+            return;
+        }
+
+        const formData = new FormData(e.target);
+        const dataObj = Object.fromEntries(formData.entries());
+
+        showLoading("Menyimpan Data Kunjungan...");
+        runGoogleScript('saveGuestData', dataObj)
+            .then(res => {
+                hideLoading();
+                if (res.success) {
+                    showSuccess("Data berhasil diregistrasi!", () => {
+                        e.target.reset();
+                        photoBase64Input.value = "";
+                        startCamera(); // restart camera form
+                    });
+                } else {
+                    showError(res.message);
+                }
+            })
+            .catch(err => {
+                hideLoading();
+                showError("Gagal menyimpan data ke sistem.");
+            });
+    }
+
+    // ============================
+    // DAFTAR KUNJUNGAN TABLE
+    // ============================
+    let dTable = null;
+    async function renderDataTable() {
+        showLoading("Memuat Data...");
+        try {
+            const data = await runGoogleScript('getAllGuestData');
+            if (dTable) dTable.destroy();
+
+            const tbody = document.getElementById('guestTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach((row, i) => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+          <td class="text-center">${i + 1}</td>
+          <td class="text-muted">${row['Tanggal']} <br><small>${row['Jam']}</small></td>
+          <td><strong class="text-dark">${row['Nama']}</strong><br><small class="text-muted fw-bold">${row['NIK']}</small><br><small class="text-muted"><i class="fab fa-whatsapp text-success me-1"></i>${row['No HP']}</small></td>
+          <td class="text-muted fw-medium">${row['Instansi'] || '-'}</td>
+          <td><span class="badge bg-light text-dark border px-2 py-1">${row['Status']}</span></td>
+          <td>${row['Tujuan']}</td>
+          <td>${row['Keperluan']}</td>
+          <td class="text-center">
+             ${row['Link Foto'] ? `<a href="${row['Link Foto']}" target="_blank" class="btn btn-sm btn-light text-teal border"><i class="fas fa-camera"></i></a>` : '-'}
+          </td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+            dTable = $('#guestTable').DataTable({
+                dom: "<'row mb-3'<'col-md-6'><'col-md-6 d-flex justify-content-end'B>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row mt-3'<'col-md-5'i><'col-md-7'p>>",
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel me-1"></i> Excel', className: 'btn btn-light border btn-sm' }
+                ],
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json' },
+                pageLength: 8,
+                ordering: false
+            });
+
+            // Custom Datatable Search Integration
+            $('#customSearchInput').on('keyup', function () {
+                dTable.search(this.value).draw();
+            });
+
+        } catch (e) {
+            console.error(e);
+            showError("Gagal mengambil daftar kunjungan.");
+        }
+        hideLoading();
+    }
+
+    // ============================
+    // STATISTIK & INSIGHT
+    // ============================
+    let charts = {};
+    async function renderStatistics() {
+        showLoading("Menganalisis Data...");
+        try {
+            const stats = await runGoogleScript('getDashboardStats');
+
+            document.getElementById('stat-total-kunjungan').innerText = stats.all;
+            document.getElementById('stat-kunjungan-baru').innerText = stats.today; // Kunjungan hari ini dianggap baru
+            // Waktu puncak kalkulasi sederhana (just dummy / static for UI match if hard to get)
+            document.getElementById('stat-waktu-puncak').innerText = '09:00';
+            // Urusan Dinas (contoh filter)
+            let urusanDinas = stats.statusChart['Vendor'] || 0;
+            document.getElementById('stat-urusan-dinas').innerText = urusanDinas;
+
+            // Render Bar / Line Chart Mingguan
+            const ctxLine = document.getElementById('chart-mingguan').getContext('2d');
+            if (charts.mingguan) charts.mingguan.destroy();
+
+            // Simplify labels
+            const labels = Object.keys(stats.dailyChart).slice(-7);
+            const datasets = labels.map(l => stats.dailyChart[l]);
+
+            charts.mingguan = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Kunjungan',
+                        data: datasets,
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#059669',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false, beginAtZero: true },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Render Doughnut Segmentasi
+            const ctxPie = document.getElementById('chart-segmentasi').getContext('2d');
+            if (charts.segmentasi) charts.segmentasi.destroy();
+
+            charts.segmentasi = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(stats.statusChart),
+                    datasets: [{
+                        data: Object.values(stats.statusChart),
+                        backgroundColor: ['#059669', '#0891b2', '#f59e0b', '#dc2626', '#6366f1', '#14b8a6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, padding: 20 } }
+                    }
+                }
+            });
+
+        } catch (e) {
+            console.error(e);
+            showError("Gagal merender statistik.");
+        }
+        hideLoading();
+    }
+
+    // ============================
+    // INIT on DOM LOAD
+    // ============================
+    document.addEventListener("DOMContentLoaded", async () => {
+        initDates();
+
+        // Bind camera events (if elements exist on page)
+        let btnStart = document.getElementById('btn-start-camera');
+        let btnCapture = document.getElementById('btn-capture');
+        let btnRetake = document.getElementById('btn-retake');
+        let formGuest = document.getElementById('guestForm');
+
+        if (btnStart) btnStart.addEventListener('click', startCamera);
+        if (btnCapture) btnCapture.addEventListener('click', capturePhoto);
+        if (btnRetake) btnRetake.addEventListener('click', startCamera);
+        if (formGuest) formGuest.addEventListener('submit', submitGuestForm);
+
+        showLoading("Menyiapkan Sistem...");
+
+        // 1. Load Settings
+        try {
+            const settings = await runGoogleScript('getSettings');
+            if (settings && settings['APP_TITLE']) {
+                document.querySelectorAll('.dyn-title').forEach(el => el.innerText = settings['APP_TITLE']);
+            }
+            if (settings && settings['APP_SUBTITLE']) {
+                document.querySelectorAll('.dyn-subtitle').forEach(el => el.innerText = settings['APP_SUBTITLE']);
+                document.querySelectorAll('.dyn-subtitle-text').forEach(el => el.innerText = `Sistem Informasi ${settings['APP_TITLE']} - ${settings['APP_SUBTITLE']}`);
+            }
+        } catch (e) { console.warn("Gagal load settings:", e); }
+
+        // 2. Load Status/Kategori
+        try {
+            const statuses = await runGoogleScript('getStatuses');
+            const selectStatus = document.getElementById('status-select');
+            if (selectStatus && statuses) {
+                selectStatus.innerHTML = '<option value="">-- Pilih Kategori --</option>'; // clear
+                statuses.forEach(st => {
+                    selectStatus.innerHTML += `<option value="${st.name}">${st.name}</option>`;
+                });
+            }
+        } catch (e) { console.warn("Gagal load kategori:", e); }
+
+        // 3. Load Ruangan/Tujuan
+        try {
+            const ruangans = await runGoogleScript('getRuangans');
+            const selectRuangan = document.getElementById('ruangan-select');
+            if (selectRuangan && ruangans) {
+                selectRuangan.innerHTML = '<option value="">-- Pilih Unit/Ruangan --</option>'; // clear
+                ruangans.forEach(ru => {
+                    selectRuangan.innerHTML += `<option value="${ru.name}">${ru.name}</option>`;
+                });
+            }
+        } catch (e) { console.warn("Gagal load ruangan:", e); }
+
+        // Start camera automatically on load
+        try {
+            await startCamera();
+        } catch (e) { console.warn("Gagal start camera on load:", e); }
+
+        hideLoading();
+
+        // Default show registrasi page
+        showPage('registrasi', document.querySelector('.nav-item-custom'));
+    });
+</script>

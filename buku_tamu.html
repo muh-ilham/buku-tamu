@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Tamu - RS Pelamonia</title>
+    <style>
+        /* Gaya untuk memastikan iframe mengambil 100% tinggi dan lebar layar tanpa scrollbar ganda */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* Sembunyikan scrollbar di halaman induk */
+            background-color: #f1f5f9;
+            /* Warna latar belakang sesuai tema */
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 100vh;
+            /* Mengisi seluruh viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            /* Opsional: Jika Anda ingin tampilannya seperti aplikasi mobile di desktop, ubah width menjadi max-width: 480px; */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="iframe-container">
+        <!-- 
+          PERHATIAN: 
+          Atribut allow="camera; microphone" WAJIB ADA agar Google Apps Script di dalamnya bisa mengakses kamera.
+          Link src adalah URL Deployment Web App Google Apps Script Anda. 
+        -->
+        <iframe class="app-iframe"
+            src="https://script.google.com/macros/s/AKfycbyf_h9Fmom107ynrVmcLEPMwpux_RfahzyMpuWNpsEFYVlgrHErZvZbjePy0cILemvc/exec"
+            allow="camera; microphone; geolocation" title="Sistem Informasi Buku Tamu RS Pelamonia"
+            sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts allow-top-navigation-by-user-activation">
+        </iframe>
+    </div>
+
+</body>
+
+</html>

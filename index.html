@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Buku Tamu - RS Pelamonia</title>
+    <?!= include('css'); ?>
+</head>
+
+<body>
+
+    <!-- Global Loading / Overlay -->
+    <div id="loading">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loading-text">Memproses Data...</div>
+    </div>
+
+    <div class="app-container">
+
+        <!-- LEFT SIDEBAR -->
+        <nav class="sidebar py-4 position-relative">
+
+            <!-- Brand Logo -->
+            <div class="px-4 mb-4 d-flex align-items-center gap-3">
+                <div class="sidebar-logo-icon shadow-sm">
+                    <i class="fas fa-hospital-alt" style="font-size: 1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark outfit-font dyn-title"
+                        style="font-size: 1.15rem; letter-spacing: -0.5px; color: var(--pelamonia-dark);">Pelamonia
+                    </div>
+                    <div class="dyn-subtitle"
+                        style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px; color: var(--pelamonia-green);">
+                        RS TK.II DIGITAL</div>
+                </div>
+            </div>
+
+            <!-- Menu Header -->
+            <div class="px-4 mt-2 mb-2">
+                <span style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; letter-spacing: 1.5px;">MAIN
+                    MENU</span>
+            </div>
+
+            <!-- Navigation Links -->
+            <ul class="nav flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="#" class="nav-item-custom active" onclick="showPage('registrasi', this)">
+                        <i class="fas fa-user-plus"></i> Registrasi Tamu
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-item-custom" onclick="showPage('kunjungan', this)">
+                        <i class="fas fa-clipboard-list"></i> Daftar Kunjungan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-item-custom" onclick="showPage('statistik', this)">
+                        <i class="fas fa-chart-line"></i> Statistik & Insight
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Admin Area Link -->
+            <div class="px-4 mt-4">
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=login" target="_top" class="nav-item-custom"
+                    style="background-color: transparent; border: 1px solid var(--pelamonia-green); color: var(--pelamonia-green); justify-content: center; margin: 0;">
+                    <i class="fas fa-user-shield"></i> <span class="fw-bold">Login Admin</span>
+                </a>
+            </div>
+
+            <!-- Bottom Admin Card -->
+            <div class="sidebar-bottom-card mt-auto shadow-sm">
+                <div class="rounded-circle d-flex align-items-center justify-content-center text-teal fw-bold bg-light"
+                    style="width: 38px; height: 38px; color: var(--pelamonia-green); font-size: 0.8rem;">
+                    AD
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold outfit-font text-dark" style="font-size: 0.85rem;">Admin Duty</div>
+                    <div class="text-muted" style="font-size: 0.7rem; white-space: nowrap;">Security Gate A</div>
+                </div>
+                <div class="text-muted" style="cursor: pointer;">
+                    <i class="fas fa-cog" style="font-size: 1.1rem;"></i>
+                </div>
+            </div>
+
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+
+            <!-- ============================================== -->
+            <!-- PAGE 1: REGISTRASI TAMU -->
+            <!-- ============================================== -->
+            <div id="page-registrasi" class="page-section fade-in">
+                <header class="page-header">
+                    <div>
+                        <h2 class="fw-bold mb-1 outfit-font text-dark">Registrasi Tamu Baru</h2>
+                        <p class="text-muted small m-0 fw-medium dyn-subtitle-text">Sistem Informasi Buku Tamu RS
+                            Pelamonia</p>
+                    </div>
+                    <div class="date-pill shadow-sm">
+                        <span class="date-display">...</span>
+                    </div>
+                </header>
+
+                <div class="row g-4">
+
+                    <!-- Kamera & Peringatan UI -->
+                    <div class="col-xl-5 col-lg-6">
+                        <div id="camera-frame-container" style="background-color: transparent;">
+
+                            <div id="camera-error" class="camera-box-error mb-4">
+                                <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm mb-3"
+                                    style="width: 64px; height: 64px;">
+                                    <i class="fas fa-exclamation-circle text-danger" style="font-size: 2rem;"></i>
+                                </div>
+                                <h5 class="fw-bold" style="color: var(--danger-red);">Akses Kamera Terhambat</h5>
+                                <p style="color: #b91c1c; font-size: 0.85rem;" class="px-3 fw-medium">Izin kamera
+                                    ditolak. Harap izinkan akses untuk melanjutkan.</p>
+                                <button type="button" class="btn-camera-retry" onclick="startCamera()">Coba Aktifkan
+                                    Kembali</button>
+                                <button type="button" class="btn-camera-retry mt-2"
+                                    style="background-color: #0b2241; border-color: #0b2241; color: #fff;"
+                                    onclick="document.getElementById('camera-file-input').click()">
+                                    <i class="fas fa-folder-open me-2"></i> Ambil Manual / Upload Foto
+                                </button>
+                            </div>
+                            <input type="file" accept="image/*" capture="user" id="camera-file-input"
+                                style="display: none;" onchange="handleManualPhoto(event)">
+
+                            <div id="camera-active" class="camera-box-active mb-4 shadow" style="display:none;">
+                                <video id="video" autoplay playsinline muted></video>
+                                <img id="photo-preview" src="" alt="Foto Tamu" style="display:none;">
+
+                                <!-- Controls Overlay in Active Camera -->
+                                <div id="camera-controls" class="position-absolute bottom-0 w-100 p-3"
+                                    style="z-index: 10;">
+                                    <button type="button"
+                                        class="btn btn-light w-100 py-3 rounded-pill fw-bold text-dark shadow-sm"
+                                        id="btn-capture">
+                                        <i class="fas fa-camera me-2"></i> Ambil Foto Wajah
+                                    </button>
+                                </div>
+                                <div id="retake-controls" class="position-absolute bottom-0 w-100 p-3"
+                                    style="display:none; z-index: 10;">
+                                    <button type="button"
+                                        class="btn btn-warning w-100 py-3 rounded-pill fw-bold text-white shadow-sm"
+                                        id="btn-retake">
+                                        <i class="fas fa-redo me-2"></i> Ulangi Foto
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- AI Security Integrated Info Block -->
+                            <div class="ai-security-card shadow-sm fade-in">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="fas fa-brain"></i>
+                                    <h6 class="fw-bold m-0" style="font-family: 'Outfit', sans-serif;">AI Security
+                                        Integrated</h6>
+                                </div>
+                                <p class="m-0" style="font-size: 0.77rem; line-height: 1.6; opacity: 0.9;">
+                                    Sistem kami menggunakan AI untuk membantu verifikasi cepat tujuan kunjungan Anda
+                                    demi keamanan bersama di lingkungan RS Pelamonia.
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Formulir Registrasi -->
+                    <div class="col-xl-7 col-lg-6">
+                        <div class="data-card border-0 h-100 p-4 p-xl-5">
+                            <form id="guestForm">
+                                <input type="hidden" id="photoBase64" name="photoBase64">
+
+                                <div class="row g-4 mb-4 mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">NAMA LENGKAP</label>
+                                        <input type="text" class="form-control-custom w-100" name="nama"
+                                            placeholder="Masukkan Nama Anda" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">NIK (NOMOR INDUK KEPENDUDUKAN)</label>
+                                        <input type="number" class="form-control-custom w-100" name="nik"
+                                            placeholder="16 Digit NIK" required>
+                                    </div>
+                                </div>
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">NO. WHATSAPP</label>
+                                        <input type="number" class="form-control-custom w-100" name="hp"
+                                            placeholder="0812xxxx" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">ASAL INSTANSI / PERUSAHAAN</label>
+                                        <input type="text" class="form-control-custom w-100" name="instansi"
+                                            placeholder="Jika tidak ada ketik '-'" required>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">KATEGORI</label>
+                                        <select class="form-select-custom w-100" name="status" id="status-select"
+                                            required>
+                                            <option value="">Memuat...</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">UNIT/RUANGAN TUJUAN</label>
+                                        <select class="form-select-custom w-100" name="tujuan" id="ruangan-select"
+                                            required>
+                                            <option value="">Memuat...</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-5">
+                                    <label class="form-label-custom">CATATAN KUNJUNGAN</label>
+                                    <textarea class="form-control-custom w-100" name="keperluan" rows="3"
+                                        placeholder="Berikan alasan kunjungan Anda..." required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn-submit-main" id="btn-submit">
+                                    <i class="far fa-paper-plane mr-2"></i> SELESAIKAN REGISTRASI
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- ============================================== -->
+            <!-- PAGE 2: DAFTAR KUNJUNGAN -->
+            <!-- ============================================== -->
+            <div id="page-kunjungan" class="page-section fade-in" style="display:none;">
+                <header class="page-header">
+                    <div>
+                        <h2 class="fw-bold mb-1 outfit-font text-dark">Data Kunjungan</h2>
+                        <p class="text-muted small m-0 fw-medium dyn-subtitle-text">Sistem Informasi Buku Tamu RS
+                            Pelamonia</p>
+                    </div>
+                    <div class="date-pill shadow-sm">
+                        <span class="date-display">...</span>
+                    </div>
+                </header>
+
+                <div class="mb-4 search-wrapper shadow-sm rounded-4">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="customSearchInput" class="search-input" placeholder="Cari data kunjungan...">
+                </div>
+
+                <div class="data-card border-0">
+                    <div class="table-responsive">
+                        <table id="guestTable" class="table table-hover align-middle border-bottom-0 w-100">
+                            <thead style="background-color: var(--bg-main);">
+                                <tr>
+                                    <th class="py-3 text-muted" style="border-radius:10px 0 0 10px; font-size:0.85rem;">
+                                        NO</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">WAKTU</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">PENGUNJUNG</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">INSTANSI</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">KATEGORI</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">TUJUAN</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">CATATAN</th>
+                                    <th class="py-3 text-center text-muted"
+                                        style="border-radius:0 10px 10px 0; font-size:0.85rem;">FOTO</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guestTableBody" style="font-size: 0.9rem;">
+                                <!-- Filled via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ============================================== -->
+            <!-- PAGE 3: STATISTIK & INSIGHT -->
+            <!-- ============================================== -->
+            <div id="page-statistik" class="page-section fade-in" style="display:none;">
+                <header class="page-header">
+                    <div>
+                        <h2 class="fw-bold mb-1 outfit-font text-dark">Analisis Data</h2>
+                        <p class="text-muted small m-0 fw-medium">Sistem Informasi Buku Tamu RS Pelamonia</p>
+                    </div>
+                    <div class="date-pill shadow-sm">
+                        <span class="date-display">...</span>
+                    </div>
+                </header>
+
+                <!-- Stats Cards Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="stat-card-custom border-0" style="position:relative; overflow:hidden;">
+                            <div class="position-absolute"
+                                style="right:-10px; top:-10px; width:100px; height:100px; border-radius:50%; background-color:#f0fdf4; opacity:0.8;">
+                            </div>
+                            <div class="stat-icon" style="background-color: #d1fae5; color: #059669;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-label">TOTAL PENGUNJUNG</div>
+                            <h3 class="stat-value" id="stat-total-kunjungan">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6">
+                        <div class="stat-card-custom border-0" style="position:relative; overflow:hidden;">
+                            <div class="position-absolute"
+                                style="right:-10px; top:-10px; width:100px; height:100px; border-radius:50%; background-color:#eff6ff; opacity:0.8;">
+                            </div>
+                            <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
+                                <i class="fas fa-arrow-up-right-dots"></i>
+                            </div>
+                            <div class="stat-label">KUNJUNGAN BARU</div>
+                            <h3 class="stat-value" id="stat-kunjungan-baru">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6">
+                        <div class="stat-card-custom border-0" style="position:relative; overflow:hidden;">
+                            <div class="position-absolute"
+                                style="right:-10px; top:-10px; width:100px; height:100px; border-radius:50%; background-color:#fefce8; opacity:0.8;">
+                            </div>
+                            <div class="stat-icon" style="background-color: #fef08a; color: #d97706;">
+                                <i class="far fa-clock"></i>
+                            </div>
+                            <div class="stat-label">WAKTU PUNCAK</div>
+                            <h3 class="stat-value" id="stat-waktu-puncak">00:00</h3>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6">
+                        <div class="stat-card-custom border-0" style="position:relative; overflow:hidden;">
+                            <div class="position-absolute"
+                                style="right:-10px; top:-10px; width:100px; height:100px; border-radius:50%; background-color:#fef2f2; opacity:0.8;">
+                            </div>
+                            <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-label">URUSAN DINAS</div>
+                            <h3 class="stat-value" id="stat-urusan-dinas">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="data-card border-0 h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="fw-bold m-0 outfit-font">Statistik Mingguan</h6>
+                                <a href="#" class="text-decoration-none text-teal fw-bold"
+                                    style="font-size: 0.75rem; color: var(--pelamonia-green);">DETAIL LENGKAP ></a>
+                            </div>
+                            <div class="flex-grow-1" style="min-height: 250px;">
+                                <canvas id="chart-mingguan"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="data-card border-0 h-100 d-flex flex-column">
+                            <h6 class="fw-bold mb-4 outfit-font">Segmentasi Tamu</h6>
+                            <div class="flex-grow-1 d-flex justify-content-center align-items-center"
+                                style="min-height: 250px;">
+                                <canvas id="chart-segmentasi"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rangkuman Strategis -->
+                <div class="strategic-panel shadow-sm text-center">
+                    <h6 class="fw-bold outfit-font m-0" style="letter-spacing: 0.5px;">Rangkuman Strategis</h6>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <canvas id="canvas-hidden" style="display:none;"></canvas>
+
+    <?!= include('js'); ?>
+</body>
+
+</html>

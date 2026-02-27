@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - RS Pelamonia</title>
+    <?!= include('css'); ?>
+</head>
+
+<body>
+
+    <!-- Global Loading / Overlay -->
+    <div id="loading">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loading-text">Memuat Dashboard...</div>
+    </div>
+
+    <div class="app-container">
+
+        <!-- LEFT SIDEBAR -->
+        <nav class="sidebar py-4 position-relative">
+
+            <!-- Brand Logo -->
+            <div class="px-4 mb-4 d-flex align-items-center gap-3">
+                <div class="sidebar-logo-icon shadow-sm bg-dark">
+                    <i class="fas fa-shield-alt" style="font-size: 1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark outfit-font dyn-title"
+                        style="font-size: 1.15rem; letter-spacing: -0.5px; color: var(--pelamonia-dark);">Pelamonia
+                    </div>
+                    <div class="dyn-subtitle"
+                        style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px; color: var(--pelamonia-green);">
+                        ADMIN PANEL</div>
+                </div>
+            </div>
+
+            <!-- Menu Header -->
+            <div class="px-4 mt-2 mb-2">
+                <span style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; letter-spacing: 1.5px;">ADMIN
+                    MENU</span>
+            </div>
+
+            <!-- Navigation Links -->
+            <ul class="nav flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="#" class="nav-item-custom active" onclick="showAdminPage('dashboard', this)">
+                        <i class="fas fa-chart-line"></i> Dashboard Statistik
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-item-custom" onclick="showAdminPage('kunjungan', this)">
+                        <i class="fas fa-clipboard-list"></i> Data Kunjungan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-item-custom" onclick="showAdminPage('pengaturan', this)">
+                        <i class="fas fa-cogs"></i> Sistem & Pengaturan
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Bottom Admin Card -->
+            <div class="sidebar-bottom-card mt-auto shadow-sm">
+                <div class="rounded-circle d-flex align-items-center justify-content-center text-danger fw-bold bg-light"
+                    style="width: 38px; height: 38px; font-size: 0.8rem;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold outfit-font text-dark" style="font-size: 0.85rem;">Administrator</div>
+                    <div class="text-muted" style="font-size: 0.7rem; white-space: nowrap;">Buku Tamu Master</div>
+                </div>
+                <div class="text-danger" style="cursor: pointer;" onclick="logoutAdmin()" title="Keluar">
+                    <i class="fas fa-sign-out-alt" style="font-size: 1.1rem;"></i>
+                </div>
+            </div>
+
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+
+            <!-- ============================================== -->
+            <!-- PAGE 1: DASHBOARD STATISTIK -->
+            <!-- ============================================== -->
+            <div id="page-dashboard" class="page-section fade-in">
+                <header class="page-header">
+                    <div>
+                        <h2 class="fw-bold mb-1 outfit-font text-dark">Ringkasan Eksekutif</h2>
+                        <p class="text-muted small m-0 fw-medium dyn-subtitle-text">Panel Administrator Buku Tamu RS
+                            Pelamonia</p>
+                    </div>
+                    <div class="date-pill shadow-sm">
+                        <span class="date-display">...</span>
+                    </div>
+                </header>
+
+                <!-- Stats Cards Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card-custom border-0" style="position:relative; overflow:hidden;">
+                            <div class="position-absolute"
+                                style="right:-10px; top:-10px; width:100px; height:100px; border-radius:50%; background-color:#eff6ff; opacity:0.8;">
+                            </div>
+                            <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="stat-label">HARI INI</div>
+                            <h3 class="stat-value" id="stat-today">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="stat-card-custom border-0" style="position:relative; overflow:hidden;">
+                            <div class="position-absolute"
+                                style="right:-10px; top:-10px; width:100px; height:100px; border-radius:50%; background-color:#f0fdf4; opacity:0.8;">
+                            </div>
+                            <div class="stat-icon" style="background-color: #d1fae5; color: #059669;">
+                                <i class="far fa-calendar-alt"></i>
+                            </div>
+                            <div class="stat-label">BULAN INI</div>
+                            <h3 class="stat-value" id="stat-month">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="stat-card-custom border-0" style="position:relative; overflow:hidden;">
+                            <div class="position-absolute"
+                                style="right:-10px; top:-10px; width:100px; height:100px; border-radius:50%; background-color:#fefce8; opacity:0.8;">
+                            </div>
+                            <div class="stat-icon" style="background-color: #fef08a; color: #d97706;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-label">TOTAL SELURUH KUNJUNGAN</div>
+                            <h3 class="stat-value" id="stat-all">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="data-card border-0 h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="fw-bold m-0 outfit-font">Grafik Kunjungan Harian (14 Hari Terakhir)</h6>
+                            </div>
+                            <div class="flex-grow-1" style="min-height: 300px;">
+                                <canvas id="dailyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="data-card border-0 h-100 d-flex flex-column">
+                            <h6 class="fw-bold mb-4 outfit-font">Proporsi Kategori Tamu</h6>
+                            <div class="flex-grow-1 d-flex justify-content-center align-items-center"
+                                style="min-height: 300px;">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- PAGE 2: DATA KUNJUNGAN -->
+            <!-- ============================================== -->
+            <div id="page-kunjungan" class="page-section fade-in" style="display:none;">
+                <header class="page-header">
+                    <div>
+                        <h2 class="fw-bold mb-1 outfit-font text-dark">Data Master Kunjungan</h2>
+                        <p class="text-muted small m-0 fw-medium dyn-subtitle-text">Panel Administrator Buku Tamu RS
+                            Pelamonia</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-danger shadow-sm fw-bold px-3 py-2"
+                            style="border-radius: 50rem; font-size: 0.85rem;" onclick="deleteAllGuest()">
+                            <i class="fas fa-trash-alt me-2"></i> Kosongkan Data
+                        </button>
+                        <div class="date-pill shadow-sm">
+                            <span class="date-display">...</span>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="data-card border-0">
+                    <!-- Filter Tanggal Custom -->
+                    <div class="row mb-3 align-items-end" id="filter-tanggal-container">
+                        <div class="col-md-3 col-sm-6">
+                            <label class="text-muted fw-bold mb-1" style="font-size: 0.75rem;"><i
+                                    class="fas fa-calendar-alt me-1"></i> DARI TANGGAL</label>
+                            <input type="date" id="minDate"
+                                class="form-control form-control-sm p-2 shadow-sm border-0 bg-light">
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label class="text-muted fw-bold mb-1" style="font-size: 0.75rem;"><i
+                                    class="fas fa-calendar-alt me-1"></i> SAMPAI TANGGAL</label>
+                            <input type="date" id="maxDate"
+                                class="form-control form-control-sm p-2 shadow-sm border-0 bg-light">
+                        </div>
+                        <div class="col-md-2 col-sm-12 mt-2 mt-md-0">
+                            <button id="btnResetFilter"
+                                class="btn btn-sm btn-outline-secondary w-100 p-2 fw-bold text-dark border-1"
+                                style="border-radius: 8px;">Reset Filter</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="guestTable" class="table table-hover align-middle border-bottom-0 w-100">
+                            <thead style="background-color: var(--bg-main);">
+                                <tr>
+                                    <th class="py-3 text-muted" style="border-radius:10px 0 0 10px; font-size:0.85rem;">
+                                        NO</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">TANGGAL</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">JAM</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">PENGUNJUNG</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">INSTANSI</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">KATEGORI</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">TUJUAN UNIT</th>
+                                    <th class="py-3 text-muted" style="font-size:0.85rem;">KEPERLUAN</th>
+                                    <th class="py-3 text-center text-muted" style="font-size:0.85rem;">FOTO</th>
+                                    <th class="py-3 text-center text-muted"
+                                        style="border-radius:0 10px 10px 0; font-size:0.85rem;">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guestTableBody" style="font-size: 0.9rem;">
+                                <!-- Filled via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- PAGE 3: PENGATURAN -->
+            <!-- ============================================== -->
+            <div id="page-pengaturan" class="page-section fade-in" style="display:none;">
+                <header class="page-header">
+                    <div>
+                        <h2 class="fw-bold mb-1 outfit-font text-dark">Sistem & Pengaturan</h2>
+                        <p class="text-muted small m-0 fw-medium dyn-subtitle-text">Panel Administrator Buku Tamu RS
+                            Pelamonia</p>
+                    </div>
+                    <div class="date-pill shadow-sm">
+                        <span class="date-display">...</span>
+                    </div>
+                </header>
+
+                <div class="row g-4">
+                    <!-- Identitas Aplikasi -->
+                    <div class="col-lg-12">
+                        <div class="data-card border-0">
+                            <h6 class="fw-bold mb-4 outfit-font"><i class="fas fa-hospital me-2 text-teal"
+                                    style="color:var(--pelamonia-green)"></i>Identitas Aplikasi Utama</h6>
+                            <form id="form-settings-app">
+                                <div class="row g-3">
+                                    <div class="col-md-5">
+                                        <label class="form-label-custom">NAMA INTITUSI (JUDUL UTAMA)</label>
+                                        <input type="text" class="form-control-custom w-100" id="set-title" required
+                                            placeholder="Contoh: Pelamonia">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label class="form-label-custom">SUB JUDUL DIGITAL</label>
+                                        <input type="text" class="form-control-custom w-100" id="set-subtitle" required
+                                            placeholder="Contoh: RS TK.II DIGITAL">
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-dark w-100 py-3 rounded-3 fw-bold"
+                                            onclick="saveAppIdentity()">
+                                            <i class="fas fa-save me-1"></i> Simpan
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Master Status -->
+                    <div class="col-lg-6">
+                        <div class="data-card border-0 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="fw-bold m-0 outfit-font"><i
+                                        class="fas fa-tags me-2 text-primary"></i>Kategori Tamu Aktif</h6>
+                                <button class="btn btn-sm btn-outline-success fw-bold" style="border-radius:8px;"
+                                    onclick="openStatusModal()"><i class="fas fa-plus"></i> Kategori Baru</button>
+                            </div>
+
+                            <ul class="list-group list-group-flush border-0" id="status-list"
+                                style="max-height: 400px; overflow-y:auto;">
+                                <!-- Loaded dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Master Ruangan / Tujuan -->
+                    <div class="col-lg-6">
+                        <div class="data-card border-0 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="fw-bold m-0 outfit-font"><i
+                                        class="fas fa-door-open me-2 text-info"></i>Daftar Unit/Ruangan Tujuan</h6>
+                                <button class="btn btn-sm btn-outline-info fw-bold" style="border-radius:8px;"
+                                    onclick="openRuanganModal()"><i class="fas fa-plus"></i> Unit Baru</button>
+                            </div>
+
+                            <ul class="list-group list-group-flush border-0" id="ruangan-list"
+                                style="max-height: 400px; overflow-y:auto;">
+                                <!-- Loaded dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal Status -->
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header bg-light border-0 px-4 py-3">
+                    <h5 class="modal-title fw-bold outfit-font text-dark" id="statusModalTitle">Tambah Kategori Tamu
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="form-status">
+                        <input type="hidden" id="status-id">
+                        <div class="mb-4">
+                            <label class="form-label-custom">NAMA KATEGORI</label>
+                            <input type="text" class="form-control-custom w-100" id="status-name" required
+                                placeholder="Contoh: Mitra Kerja">
+                        </div>
+                        <div class="form-check form-switch fs-5">
+                            <input class="form-check-input" type="checkbox" id="status-active" checked>
+                            <label class="form-check-label ms-2 text-dark fs-6 mt-1" for="status-active"
+                                style="font-weight:600;">Aktifkan di Form Pengunjung</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pb-4 pe-4">
+                    <button type="button" class="btn text-muted fw-bold" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-dark px-4 rounded-pill fw-bold"
+                        onclick="saveStatusData()">Simpan Kategori</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ruangan -->
+    <div class="modal fade" id="ruanganModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header bg-light border-0 px-4 py-3">
+                    <h5 class="modal-title fw-bold outfit-font text-dark" id="ruanganModalTitle">Tambah Unit/Ruangan
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="form-ruangan">
+                        <input type="hidden" id="ruangan-id">
+                        <div class="mb-4">
+                            <label class="form-label-custom">NAMA UNIT/RUANGAN</label>
+                            <input type="text" class="form-control-custom w-100" id="ruangan-name" required
+                                placeholder="Contoh: Poli Bedah">
+                        </div>
+                        <div class="form-check form-switch fs-5">
+                            <input class="form-check-input" type="checkbox" id="ruangan-active" checked>
+                            <label class="form-check-label ms-2 text-dark fs-6 mt-1" for="ruangan-active"
+                                style="font-weight:600;">Aktifkan di Form Pengunjung</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pb-4 pe-4">
+                    <button type="button" class="btn text-muted fw-bold" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-dark px-4 rounded-pill fw-bold"
+                        onclick="saveRuanganData()">Simpan Unit/Ruangan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note: We are importing scripts directly here to keep logic separated for Admin -->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let dTable = null;
+        let chartsObj = {};
+        let statusModalInstance;
+        let ruanganModalInstance;
+
+        function runGoogleScript(funcName, ...args) {
+            return new Promise((resolve, reject) => {
+                if (typeof google === 'undefined') { reject(new Error("Local Environment")); return; }
+                var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+                if (args.length > 0) runner[funcName].apply(runner, args);
+                else runner[funcName]();
+            });
+        }
+
+        function showLoading(msg = 'Memproses...') {
+            document.getElementById('loading').style.display = 'flex';
+            let textEl = document.getElementById('loading-text');
+            if (textEl) textEl.innerText = msg;
+        }
+        function hideLoading() { document.getElementById('loading').style.display = 'none'; }
+        function showError(msg) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: msg, confirmButtonColor: '#059669', customClass: { popup: 'rounded-4' } }); }
+        function showSuccess(msg) { Swal.fire({ icon: 'success', title: 'Berhasil', text: msg, timer: 1500, showConfirmButton: false, customClass: { popup: 'rounded-4' } }); }
+
+        // Navigation Subsystem
+        function showAdminPage(pageId, linkElement) {
+            document.querySelectorAll('.page-section').forEach(el => el.style.display = 'none');
+            document.getElementById('page-' + pageId).style.display = 'block';
+
+            document.querySelectorAll('.sidebar .nav-item-custom').forEach(nav => {
+                nav.classList.remove('active', 'text-teal', 'bg-light-teal', 'fw-semibold');
+                nav.classList.add('text-muted');
+            });
+            if (linkElement) {
+                linkElement.classList.remove('text-muted');
+                linkElement.classList.add('active', 'text-teal', 'bg-light-teal', 'fw-semibold');
+            }
+
+            if (pageId === 'kunjungan') loadGuestData();
+            else if (pageId === 'pengaturan') loadSettingsPanel();
+            else if (pageId === 'dashboard') loadDashboard();
+        }
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            if (!localStorage.getItem("admin_token")) {
+                window.top.location.href = "<?= ScriptApp.getService().getUrl() ?>?page=login";
+                return;
+            }
+
+            const today = new Date();
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            document.querySelectorAll('.date-display').forEach(el => el.textContent = today.toLocaleDateString('id-ID', options));
+
+            showLoading("Memuat Akses Admin...");
+            await loadGlobalIdentity();
+            await loadDashboard();
+            hideLoading();
+        });
+
+        function logoutAdmin() {
+            Swal.fire({
+                title: 'Keluar', text: "Yakin ingin logout?", icon: 'question',
+                showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Keluar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem("admin_token");
+                    window.top.location.href = "<?= ScriptApp.getService().getUrl() ?>?page=login";
+                }
+            });
+        }
+
+        async function loadGlobalIdentity() {
+            try {
+                const settings = await runGoogleScript('getSettings');
+                if (settings['APP_TITLE']) document.querySelectorAll('.dyn-title').forEach(e => e.innerText = settings['APP_TITLE']);
+                if (settings['APP_SUBTITLE']) document.querySelectorAll('.dyn-subtitle').forEach(e => e.innerText = settings['APP_SUBTITLE']);
+                if (settings['APP_TITLE'] && settings['APP_SUBTITLE']) {
+                    document.querySelectorAll('.dyn-subtitle-text').forEach(e => e.innerText = `Sistem Informasi ${settings['APP_TITLE']} - ${settings['APP_SUBTITLE']}`);
+                }
+                document.title = "Admin Panel - " + (settings['APP_TITLE'] || 'RS Pelamonia');
+            } catch (e) { }
+        }
+
+        async function loadDashboard() {
+            try {
+                const stats = await runGoogleScript('getDashboardStats');
+                document.getElementById('stat-today').innerText = stats.today;
+                document.getElementById('stat-month').innerText = stats.month;
+                document.getElementById('stat-all').innerText = stats.all;
+
+                // Render Charts
+                const ctxDaily = document.getElementById('dailyChart').getContext('2d');
+                if (chartsObj.daily) chartsObj.daily.destroy();
+                const labels = Object.keys(stats.dailyChart).sort().slice(-14);
+                const dataDaily = labels.map(l => stats.dailyChart[l]);
+                chartsObj.daily = new Chart(ctxDaily, {
+                    type: 'bar',
+                    data: { labels: labels, datasets: [{ label: 'Kunjungan', data: dataDaily, backgroundColor: '#059669', borderRadius: 6 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
+                });
+
+                const ctxStatus = document.getElementById('statusChart').getContext('2d');
+                if (chartsObj.status) chartsObj.status.destroy();
+                chartsObj.status = new Chart(ctxStatus, {
+                    type: 'pie',
+                    data: { labels: Object.keys(stats.statusChart), datasets: [{ data: Object.values(stats.statusChart), backgroundColor: ['#059669', '#0891b2', '#f59e0b', '#dc2626', '#6366f1', '#14b8a6'], borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, padding: 15 } } } }
+                });
+            } catch (e) { }
+        }
+
+        async function loadGuestData() {
+            showLoading("Memuat Tabel...");
+            try {
+                const data = await runGoogleScript('getAllGuestData');
+                if (dTable) dTable.destroy();
+                const tbody = document.getElementById('guestTableBody');
+                tbody.innerHTML = '';
+
+                data.forEach((row, i) => {
+                    let p_nama = row['Nama'] || '-';
+                    let p_hp = row['No HP'] || '-';
+                    let photoHtml = row['Link Foto'] ? `<a href="${row['Link Foto']}" target="_blank" class="btn btn-sm btn-light text-teal border"><i class="fas fa-camera"></i></a>` : '-';
+
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                  <td class="text-center">${i + 1}</td>
+                  <td><span class="fw-bold text-dark">${row['Tanggal']}</span></td>
+                  <td class="text-muted">${row['Jam']}</td>
+                  <td><strong class="text-dark">${p_nama}</strong><br><small class="text-muted fw-bold">${row['NIK'] || '-'}</small><br><small class="text-muted"><i class="fab fa-whatsapp text-success me-1"></i>${p_hp}</small></td>
+                  <td class="text-muted fw-medium">${row['Instansi'] || '-'}</td>
+                  <td><span class="badge bg-light text-dark border">${row['Status']}</span></td>
+                  <td><span class="fw-bold text-dark">${row['Tujuan']}</span></td>
+                  <td class="text-muted">${row['Keperluan']}</td>
+                  <td class="text-center">${photoHtml}</td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-light border text-danger shadow-sm" title="Hapus Data" onclick="deleteGuest('${row['ID']}')"><i class="fas fa-trash"></i></button>
+                  </td>
+                `;
+                    tbody.appendChild(tr);
+                });
+
+                dTable = $('#guestTable').DataTable({
+                    dom: "<'row mb-3'<'col-md-6'l><'col-md-6 d-flex justify-content-end'fB>>" + "<'row'<'col-sm-12'tr>>" + "<'row mt-3'<'col-md-5'i><'col-md-7'p>>",
+                    buttons: [{ extend: 'excelHtml5', text: '<i class="fas fa-file-excel me-1"></i> Excel', className: 'btn btn-dark btn-sm ms-2' }, { extend: 'print', text: '<i class="fas fa-print me-1"></i> Cetak', className: 'btn btn-light border btn-sm ms-1' }],
+                    language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json' },
+                    order: [[1, 'desc'], [2, 'desc']]
+                });
+
+                // Memastikan event handler filter hanya digabungkan sekali (unbind lalu bind lagi mencegah penumpukan)
+                $('#minDate, #maxDate').off('change').on('change', function () {
+                    dTable.draw();
+                });
+                $('#btnResetFilter').off('click').on('click', function () {
+                    $('#minDate').val('');
+                    $('#maxDate').val('');
+                    dTable.draw();
+                });
+
+            } catch (e) { }
+            hideLoading();
+        }
+
+        // Custom DataTables Filter Function untuk Rentang Tanggal
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                if (settings.nTable.id !== 'guestTable') return true;
+
+                let minStr = $('#minDate').val();
+                let maxStr = $('#maxDate').val();
+
+                // Kolom ke-2 (index 1) adalah Tanggal format YYYY-MM-DD
+                let rawDate = data[1] || "";
+
+                // Jika input tanggal kosong, biarkan semua data lewat
+                if (!minStr && !maxStr) return true;
+                if (!rawDate) return false;
+
+                // Konversi string "YYYY-MM-DD" menjadi timestamp agar mudah dibandingkan
+                let min = minStr ? new Date(minStr).setHours(0, 0, 0, 0) : null;
+                let max = maxStr ? new Date(maxStr).setHours(23, 59, 59, 999) : null;
+
+                let rowParts = rawDate.split('-');
+                if (rowParts.length !== 3) return true; // Jika format kacau biarkan
+
+                let rowDate = new Date(rowParts[0], rowParts[1] - 1, rowParts[2]).getTime();
+
+                // Logika Filter
+                if (min && max) {
+                    return (rowDate >= min && rowDate <= max);
+                } else if (min && !max) {
+                    return (rowDate >= min);
+                } else if (!min && max) {
+                    return (rowDate <= max);
+                }
+                return true;
+            }
+        );
+
+        function deleteGuest(id) {
+            Swal.fire({
+                title: 'Hapus Data Tamu?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    showLoading("Menghapus Data...");
+                    try {
+                        let res = await runGoogleScript('deleteGuestData', id);
+                        if (res.success) {
+                            showSuccess(res.message);
+                            loadGuestData(); // Refresh Data
+                        } else {
+                            showError(res.message);
+                        }
+                    } catch (e) {
+                        showError("Gagal menghubungi server");
+                    }
+                    hideLoading();
+                }
+            });
+        }
+
+        function deleteAllGuest() {
+            Swal.fire({
+                title: 'Kosongkan SEMUA Data?',
+                html: "<span class='text-danger fw-bold'>AWAS: Tindakan ini akan menghapus permanen semua histori kunjungan tamu!</span><br><br>Yakin ingin melanjutkan?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, KOSONGKAN!',
+                cancelButtonText: 'Batal'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    showLoading("Menghapus Semua Data...");
+                    try {
+                        let res = await runGoogleScript('deleteAllGuestData');
+                        if (res.success) {
+                            showSuccess(res.message);
+                            loadGuestData(); // Refresh Data
+                        } else {
+                            showError(res.message);
+                        }
+                    } catch (e) {
+                        showError("Gagal menghubungi server");
+                    }
+                    hideLoading();
+                }
+            });
+        }
+
+        // Settings
+        async function loadSettingsPanel() {
+            showLoading("Sinkronisasi Pengaturan...");
+            try {
+                const settings = await runGoogleScript('getSettings');
+                document.getElementById('set-title').value = settings.APP_TITLE || '';
+                document.getElementById('set-subtitle').value = settings.APP_SUBTITLE || '';
+                await reloadStatusList();
+                await reloadRuanganList();
+            } catch (e) { }
+            hideLoading();
+        }
+
+        async function saveAppIdentity() {
+            const t = document.getElementById('set-title').value;
+            const s = document.getElementById('set-subtitle').value;
+            if (!t || !s) return showError("Data identitas tidak disarankan ada yang kosong.");
+
+            showLoading("Menyimpan Identitas...");
+            try {
+                await runGoogleScript('updateSetting', 'APP_TITLE', t);
+                await runGoogleScript('updateSetting', 'APP_SUBTITLE', s);
+                await loadGlobalIdentity();
+                showSuccess("Identitas Sistem Diperbarui!");
+            } catch (e) { }
+            hideLoading();
+        }
+
+        // Status / Kategori Logic
+        async function reloadStatusList() {
+            const st = await runGoogleScript('getAllStatusesAdmin');
+            const ul = document.getElementById('status-list');
+            ul.innerHTML = '';
+            st.forEach(s => {
+                let activeText = (s.active === true || s.active === "TRUE" || s.active === "true") ? '<span class="text-success fw-bold" style="font-size:0.75rem;"><i class="fas fa-check-circle"></i> AKTIF</span>' : '<span class="text-muted fw-bold" style="font-size:0.75rem;"><i class="fas fa-times-circle"></i> NONAKTIF</span>';
+                ul.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center py-3 px-0 border-bottom">
+              <div><h6 class="mb-1 fw-bold text-dark">${s.name}</h6>${activeText}</div>
+              <div>
+                <button class="btn btn-sm btn-light border text-dark me-1" onclick="editStatus('${s.id}', '${s.name}', ${s.active === true || s.active === 'TRUE' || s.active === 'true'})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-light border text-danger" onclick="deleteStatus('${s.id}')"><i class="fas fa-trash"></i></button>
+              </div>
+            </li>`;
+            });
+        }
+
+        function openStatusModal() {
+            if (!statusModalInstance) statusModalInstance = new bootstrap.Modal(document.getElementById('statusModal'));
+            document.getElementById('form-status').reset();
+            document.getElementById('status-id').value = "";
+            document.getElementById('statusModalTitle').innerText = "Tambah Kategori Baru";
+            statusModalInstance.show();
+        }
+        function editStatus(id, name, isActive) {
+            if (!statusModalInstance) statusModalInstance = new bootstrap.Modal(document.getElementById('statusModal'));
+            document.getElementById('status-id').value = id;
+            document.getElementById('status-name').value = name;
+            document.getElementById('status-active').checked = isActive === true || isActive === "true";
+            document.getElementById('statusModalTitle').innerText = "Edit Kategori Tamu";
+            statusModalInstance.show();
+        }
+        async function saveStatusData() {
+            const id = document.getElementById('status-id').value;
+            const name = document.getElementById('status-name').value.trim();
+            const active = document.getElementById('status-active').checked;
+            if (!name) return showError("Nama tidak boleh kosong!");
+            statusModalInstance.hide();
+            showLoading();
+            await runGoogleScript('saveStatus', id ? id : null, name, active);
+            await reloadStatusList();
+            hideLoading();
+            showSuccess("Tersimpan!");
+        }
+        function deleteStatus(id) {
+            Swal.fire({ title: 'Hapus Kategori?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya Hapus' }).then(async (res) => {
+                if (res.isConfirmed) { showLoading(); await runGoogleScript('deleteStatus', id); await reloadStatusList(); hideLoading(); }
+            });
+        }
+
+        // Ruangan / Unit Logic
+        async function reloadRuanganList() {
+            const st = await runGoogleScript('getAllRuangansAdmin');
+            const ul = document.getElementById('ruangan-list');
+            ul.innerHTML = '';
+            st.forEach(s => {
+                let activeText = (s.active === true || s.active === "TRUE" || s.active === "true") ? '<span class="text-success fw-bold" style="font-size:0.75rem;"><i class="fas fa-check-circle"></i> AKTIF</span>' : '<span class="text-muted fw-bold" style="font-size:0.75rem;"><i class="fas fa-times-circle"></i> NONAKTIF</span>';
+                ul.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center py-3 px-0 border-bottom">
+              <div><h6 class="mb-1 fw-bold text-dark">${s.name}</h6>${activeText}</div>
+              <div>
+                <button class="btn btn-sm btn-light border text-dark me-1" onclick="editRuangan('${s.id}', '${s.name}', ${s.active === true || s.active === 'TRUE' || s.active === 'true'})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-light border text-danger" onclick="deleteRuangan('${s.id}')"><i class="fas fa-trash"></i></button>
+              </div>
+            </li>`;
+            });
+        }
+
+        function openRuanganModal() {
+            if (!ruanganModalInstance) ruanganModalInstance = new bootstrap.Modal(document.getElementById('ruanganModal'));
+            document.getElementById('form-ruangan').reset();
+            document.getElementById('ruangan-id').value = "";
+            document.getElementById('ruanganModalTitle').innerText = "Tambah Unit/Ruangan Tujuan";
+            ruanganModalInstance.show();
+        }
+        function editRuangan(id, name, isActive) {
+            if (!ruanganModalInstance) ruanganModalInstance = new bootstrap.Modal(document.getElementById('ruanganModal'));
+            document.getElementById('ruangan-id').value = id;
+            document.getElementById('ruangan-name').value = name;
+            document.getElementById('ruangan-active').checked = isActive === true || isActive === "true";
+            document.getElementById('ruanganModalTitle').innerText = "Edit Unit/Ruangan Tujuan";
+            ruanganModalInstance.show();
+        }
+        async function saveRuanganData() {
+            const id = document.getElementById('ruangan-id').value;
+            const name = document.getElementById('ruangan-name').value.trim();
+            const active = document.getElementById('ruangan-active').checked;
+            if (!name) return showError("Nama tidak boleh kosong!");
+            ruanganModalInstance.hide();
+            showLoading();
+            await runGoogleScript('saveRuangan', id ? id : null, name, active);
+            await reloadRuanganList();
+            hideLoading();
+            showSuccess("Tersimpan!");
+        }
+        function deleteRuangan(id) {
+            Swal.fire({ title: 'Hapus Unit?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya Hapus' }).then(async (res) => {
+                if (res.isConfirmed) { showLoading(); await runGoogleScript('deleteRuangan', id); await reloadRuanganList(); hideLoading(); }
+            });
+        }
+
+    </script>
+</body>
+
+</html>

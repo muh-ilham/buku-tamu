@@ -1,0 +1,59 @@
+<!-- ========================================== -->
+<!-- KODE EMBED BUKU TAMU DIGITAL RS PELAMONIA -->
+<!-- Letakkan kode ini di dalam Tag <body>      -->
+<!-- halaman website RS Pelamonia Anda          -->
+<!-- ========================================== -->
+
+<!-- CSS untuk Responsivitas Iframe -->
+<style>
+    .buku-tamu-wrapper {
+        position: relative;
+        width: 100%;
+        /* Tinggi default untuk desktop */
+        height: 800px;
+        /* Hilangkan border bawaan web */
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        /* Warna latar saat iframe belum termuat */
+        background-color: #f1f5f9;
+    }
+
+    .buku-tamu-iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        outline: none;
+    }
+
+    /* Penyesuaian tinggi untuk layar tablet */
+    @media (max-width: 992px) {
+        .buku-tamu-wrapper {
+            height: 900px;
+        }
+    }
+
+    /* Penyesuaian tinggi untuk layar HP (Mobile) */
+    @media (max-width: 576px) {
+        .buku-tamu-wrapper {
+            /* Di HP, buat lebih tinggi agar form dan kamera terlihat semua tanpa scroll ganda */
+            height: 1100px;
+            border-radius: 8px;
+            /* Sudut lebih kecil di HP */
+        }
+    }
+</style>
+
+<!-- Container Iframe Buku Tamu -->
+<div class="buku-tamu-wrapper">
+    <!-- PENTING: Jangan meletakkan komentar HTML di dalam kurung siku <iframe ...> -->
+    <iframe class="buku-tamu-iframe"
+        src="https://script.google.com/macros/s/AKfycbyf_h9Fmom107ynrVmcLEPMwpux_RfahzyMpuWNpsEFYVlgrHErZvZbjePy0cILemvc/exec"
+        allow="camera; microphone; geolocation" title="Buku Tamu Digital Pelamonia"
+        sandbox="allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+        loading="lazy">
+    </iframe>
+</div>
