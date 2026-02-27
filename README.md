@@ -1,4 +1,4 @@
-# Panduan Instalasi Buku Tamu RS Pelamonia di Google Apps Script (GAS)
+# Panduan Instalasi Buku Tamu di Google Apps Script (GAS)
 
 Aplikasi Buku Tamu ini dirancang untuk berjalan di atas ekosistem **Google Workspace (Google Sheets, Google Drive, & Google Apps Script)**. 
 
